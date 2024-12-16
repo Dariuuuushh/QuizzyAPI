@@ -1,30 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using QuizzyAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 [Route("api/[controller]")]
 [ApiController]
 public class QuestionsController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _dbContext;
 
-    public QuestionsController(ApplicationDbContext context)
+    public QuestionsController(ApplicationDbContext dbContext)
     {
-        _context = context;
+        _dbContext = dbContext;
     }
 
-    // GET: api/questions
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Question>>> GetQuestions()
+    public async Task<ActionResult<IEnumerable<QuestionData>>> GetQuestions([FromQuery] string category, [FromQuery] string type, [FromQuery] string difficulty)
     {
-        return await _context.Questions.ToListAsync();
-    }
+        var questions = await _dbContext.Questions
+            .Where(q => q.Category == category && q.Difficulty == difficulty && q.Type == type)
+            .ToListAsync();
 
-    [HttpPost]
-    public async Task<ActionResult<Question>> PostQuestion(Question question)
-    {
-        _context.Questions.Add(question);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetQuestions), new { id = question.Id }, question);
+        if (!questions.Any())
+        {
+            return NotFound("Keine Fragen gefunden.");
+        }
+
+        return Ok(questions);
     }
 }

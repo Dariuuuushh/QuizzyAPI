@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace QuizzyAPI.Models
 {
@@ -10,6 +9,15 @@ namespace QuizzyAPI.Models
         { }
 
         // Dies stellt die "Questions"-Tabelle in der Datenbank dar.
-        public DbSet<Question> Questions { get; set; }
+        public DbSet<QuestionData> Questions { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<QuestionData>()
+                .Property(q => q.Id)
+                .ValueGeneratedOnAdd(); 
+        }
     }
 }
